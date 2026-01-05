@@ -1,0 +1,111 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model Company {
+    id          String   @id @default(uuid())
+    name        String
+    description String?
+    logoUrl     String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    branches Branch[]
+    roles    Role[]
+}
+// Sucursales de la empresa
+model Branch {
+    id        String   @id @default(uuid())
+    name      String
+    address   String?
+    phone     String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    companyId String
+    company   Company @relation(fields: [companyId], references: [id])
+
+    users   User[]
+    clients Client[]
+}
+
+model User {
+    id        String   @id @default(uuid())
+    name      String
+    lastName  String
+    email     String   @unique
+    password  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    branchId String
+    branch   Branch @relation(fields: [branchId], references: [id])
+
+    roles   UserRole[]
+    clients Client[]   @relation("UserClients")
+}
+
+model Role {
+    id          String   @id @default(uuid())
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    companyId String
+    company   Company @relation(fields: [companyId], references: [id])
+
+    users       UserRole[]
+    permissions RolePermission[]
+
+    @@unique([name, companyId])
+}
+
+model UserRole {
+    userId String
+    roleId String
+
+    user User @relation(fields: [userId], references: [id])
+    role Role @relation(fields: [roleId], references: [id])
+
+    @@id([userId, roleId])
+}
+
+model Permission {
+    id          String  @id @default(uuid())
+    key         String  @unique
+    description String?
+
+    roles RolePermission[]
+}
+
+model RolePermission {
+    roleId       String
+    permissionId String
+
+    role       Role       @relation(fields: [roleId], references: [id])
+    permission Permission @relation(fields: [permissionId], references: [id])
+
+    @@id([roleId, permissionId])
+}
+
+model Client {
+    id        String   @id @default(uuid())
+    name      String
+    lastName  String
+    phone     String?
+    email     String?
+    notes     String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    branchId String
+    branch   Branch @relation(fields: [branchId], references: [id])
+
+    userId String?
+    user   User?   @relation("UserClients", fields: [userId], references: [id])
+}
