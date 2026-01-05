@@ -49,7 +49,7 @@ Before running this project, make sure you have the following installed:
 
    ```bash
    npx prisma migrate dev --name init
-
+   run: npx prisma generate (if prisma client error)
    ```
 5. Run seeds > ⚠️ **Important:** Email: `admin@gmail.com` password:`admin123`
    ```bash
